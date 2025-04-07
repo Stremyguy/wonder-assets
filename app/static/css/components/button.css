@@ -1,0 +1,117 @@
+/* ============================= */
+/* ========== BUTTON ========== */
+/* ============================= */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.button--sm {
+    font-size: 0.875rem;
+    padding: 0.4rem 1rem;
+}
+
+.button--md {
+    font-size: 1rem;
+    padding: 0.6rem 1.5rem;
+}
+
+.button--lg {
+    font-size: 1.125rem;
+    padding: 0.8rem 2rem;
+}
+
+.button--primary {
+    background-color: #6A0DAD;
+    color: white;
+}
+
+.button--primary:hover {
+    background-color: #5a0aa0;
+}
+
+.button--primary:focus {
+    outline: 2px solid #cdb4ec;
+    outline-offset: 2px;
+}
+
+.button--outline {
+    background-color: transparent;
+    color: #6A0DAD;
+    border: 2px solid #6A0DAD;
+}
+
+.button--outline:hover {
+    background-color: #f8f1fc;
+}
+
+.button--outline:focus {
+    outline: 2px solid #cdb4ec;
+    outline-offset: 2px;
+}
+
+.button--disabled,
+.button:disabled {
+    background-color: #ddd;
+    border: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ============================= */
+/* ======= AUTH BUTTONS ======= */
+/* ============================= */
+
+.button--auth {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button--auth:hover {
+    transform: translateY(-2px);
+}
+
+.button--auth:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.4);
+}
+
+.button--auth-login {
+    background: transparent;
+    color: #6A0DAD;
+    border: 2px solid #6A0DAD;
+}
+
+.button--auth-login:hover {
+    background-color: #f2e8fb;
+    color: #5a0aa0;
+}
+
+.button--auth-signup {
+    background-color: #6A0DAD;
+    color: #fff;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 5px rgba(106, 13, 173, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.button--auth-signup:hover {
+    background-color: #5a0aa0;
+    box-shadow: 0 4px 10px rgba(106, 13, 173, 0.2), 0 6px 20px rgba(0, 0, 0, 0.1);
+}

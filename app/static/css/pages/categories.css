@@ -1,0 +1,45 @@
+/* ============================= */
+/* ======== CATEGORIES ======== */
+/* ============================= */
+
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 2rem;
+}
+
+.category-card {
+    background-color: #ffffff;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    width: 280px;
+    height: 200px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.category-card__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #1A1A1A;
+}
+
+.category-card__description {
+    font-size: 1rem;
+    color: #6E6E6E;
+    line-height: 1.4;
+}

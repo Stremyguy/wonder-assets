@@ -1,0 +1,96 @@
+/* ============================= */
+/* ======== FORM INPUTS ======== */
+/* ============================= */
+
+.form-input {
+    font-family: 'Inter', sans-serif;
+    margin: 1em 0;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-input__field {
+    font-size: 100%;
+    padding: 0.8em;
+    outline: none;
+    border: 2px solid #ccc;
+    background-color: transparent;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.form-input__label {
+    font-size: 100%;
+    position: absolute;
+    left: 0;
+    padding: 0.8em;
+    margin-left: 0.5em;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    color: #6E6E6E;
+}
+
+.form-input :is(.form-input__field:focus, .form-input__field:valid) ~ .form-input__label {
+    transform: translateY(-50%) scale(0.9);
+    margin: 0;
+    margin-left: 1.3em;
+    padding: 0.2em;
+    background-color: white;
+}
+
+.form-input :is(.form-input__field:focus, .form-input__field:valid) {
+    border-color: #D1C4E9;
+}
+
+/* ============================= */
+/* ========= CHECKBOX ========= */
+/* ============================= */
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    user-select: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.checkbox__input {
+    display: inline-block;
+    vertical-align: middle;
+    appearance: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid #6A0DAD;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.checkbox__input:checked {
+    background-color: #6A0DAD;
+}
+
+.checkbox__input:checked::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 3px;
+    height: 7px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox__label {
+    font-size: 0.95rem;
+    color: #333;
+    cursor: pointer;
+}

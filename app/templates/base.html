@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{ title }}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/navbar.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/icons.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/button.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/inputs.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/authentication.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/categories.css') }}">
+    
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+            
+        <style>
+            .icon_type_search {
+                background-image: url("{{ url_for('static', filename='images/icons/search_icon.svg') }}")
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layout">
+            <header>
+                <div class="navbar-top">
+                    <div class="navbar-top__left">
+                        <a href="#">
+                            <img class="logo" src="{{ url_for('static', filename='images/wonder_assets_logo.png') }}" alt="Wonder Assets Logo">
+                        </a>
+                    </div>
+
+                    <div class="navbar-top__right">
+                        <a href="#" class="navbar-top__element">
+                            <span class="icon icon_type_search"></span>
+                        </a>
+                        <a class="button button--auth button--auth-login" href="#">Login</a>
+                        <a class="button button--auth button--auth-signup" href="#">Sign up</a>
+                    </div>
+                </div>
+            </header>
+            <main role="main">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </body>
+</html>
