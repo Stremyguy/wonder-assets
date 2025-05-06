@@ -31,9 +31,12 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
+# Node.js / npm
+node_modules/
+
 # User profile photos (uploads)
 app/static/profile_pics/*
 
 # Items folders
 app/static/items/*
-app/static/images/items/*
+app/static/images/items/*node_modules/

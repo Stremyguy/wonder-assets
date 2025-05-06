@@ -1,0 +1,96 @@
+/* ============================= */
+/* ======== FORM LAYOUT ======== */
+/* ============================= */
+
+.form__progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form__progress:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e0e0e0;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.form__progress-step {
+    position: relative;
+    z-index: 2;
+    background-color: white;
+    color: #9e9e9e;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.form__progress-step--active {
+    color: white;
+    background-color: #6A0DAD;
+    border-color: #6A0DAD;
+}
+
+.form__section {
+    display: none;
+    padding: 1.5rem 0;
+    border-top: 1px solid #eee;
+}
+
+.form__section--active {
+    display: block;
+}
+
+.form__section-title {
+    font-size: 1.5rem;
+    color: #6A0DAD;
+    margin-bottom: 0.5rem;
+}
+
+.form__section-description {
+    color: #6E6E6E;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.form__section-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.form__group {
+    margin-bottom: 1.5rem;
+}
+
+.form__wrapper {
+    padding: 2.5rem 3rem;
+}
+
+@media (max-width: 768px) {
+    .form__progress-step {
+        width: 30px;
+        height: 30px;
+        font-size: 0.875rem;
+    }
+    
+    .form__section-title {
+        font-size: 1.25rem;
+    }
+    
+    .form__wrapper {
+        padding: 1.5rem;
+    }
+}

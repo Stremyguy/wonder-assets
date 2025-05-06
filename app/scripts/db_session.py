@@ -1,10 +1,12 @@
+import os
+from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session
-import os
+
+db = SQLAlchemy()
 
 SqlAlchemyBase = orm.declarative_base()
-
 __factory = None
 __engine = None
 
@@ -21,7 +23,11 @@ def global_init() -> None:
         raise ValueError("DATABASE_URL is not set in .env")
 
     print(f"[INFO] Connecting to DB at {conn_str}")
-    __engine = sa.create_engine(conn_str, echo=False)
+    __engine = sa.create_engine(conn_str, 
+                                echo=False,
+                                pool_size=10,
+                                max_overflow=20,
+                                pool_timeout=30)
     __factory = orm.sessionmaker(bind=__engine)
     
     from app import models
@@ -30,11 +36,9 @@ def global_init() -> None:
 
 def create_session() -> Session:
     global __factory
-    
     return __factory()
 
 
 def create_engine() -> Session:
     global __engine
-    
     return __engine()

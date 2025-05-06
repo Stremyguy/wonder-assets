@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form__wrapper">
+    <h1 class="form__title">{% if is_edit %}Edit{% else %}Create{% endif %} Item</h1>
+    
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <div class="form__progress">
+            <div class="form__progress-step form__progress-step--active" data-step="1"></div>
+            <div class="form__progress-step" data-step="2"></div>
+            <div class="form__progress-step" data-step="3"></div>
+        </div>
+        
+        <div class="form__section form__section--active" data-section="1">
+            <h2 class="form__section-title">General Information</h2>
+            <p class="form__section-description">Basic details about your item</p>
+            
+            <div class="form__group">
+                {{ form.title.label(class="form__label") }}
+                {{ form.title(class="input--default", placeholder=" ") }}
+                {% for error in form.title.errors %}
+                    <p class="text--error">{{ error }}</p>
+                {% endfor %}
+            </div>
+            
+            <div class="form__group">
+                {{ form.description.label(class="form__label") }}
+                {{ form.description(class="input--default ckeditor5-textarea", placeholder=" ", id="editor") }}
+                {% for error in form.description.errors %}
+                    <p class="text--error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form__group">
+                <div class="select">
+                    {{ form.type.label }}
+                    <div class="select__wrapper">
+                        {{ form.type(class="select__control") }}
+                        <span class="select__icon bi bi-chevron-down"></span>
+                    </div>
+                    {% for error in form.type.errors %}
+                        <p class="text--error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form__section-actions">
+                <button type="button" class="button button--outline button--md form__section-next">Next: Media</button>
+            </div>
+        </div>
+        
+        <div class="form__section" data-section="2">
+            <h2 class="form__section-title">Media</h2>
+            <p class="form__section-description">Upload files and images for your item</p>
+            
+            <div class="file-upload">
+                {{ form.item_url.label }}
+                {{ form.item_url(class="file-upload__input", id="file-upload") }}
+                <label for="file-upload" class="file-upload__label">
+                    <div class="file-upload__icon">📁</div>
+                    <div class="file-upload__text">Choose a file</div>
+                    <div class="file-upload__hint">or drag and drop here</div>
+                </label>
+                <div class="file-upload__filename" id="file-name-display">
+                    {% if is_edit and item.item_url %}<span id="current-filename">{{ item.item_url }}</span>
+                    {% else %}
+                        No file chosen
+                    {% endif %}
+                </div>
+                <div class="file-upload__preview" id="file-preview"></div>
+                {% for error in form.type.errors %}
+                    <p class="text--error">{{ error }}</p>
+                {% endfor %}
+            </div>
+            
+            <div class="image-picker">
+                {{ form.images.label(class="image-picker__label") }}
+                
+                <div class="image-picker__container" id="image-container">
+                    {% if is_edit and current_images %}
+                        {% for image in current_images %}
+                            <div class="image-picker__item" data-image-url="{{ image.image_url }}">
+                                <img src="{{ url_for('static', filename='images/items/' + image.image_url) }}" 
+                                     class="image-picker__image">
+                                <div class="image-picker__remove">×</div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {{ form.images(class="image-picker__input", multiple=True, style="display: none;") }}
+                {% for error in form.images.errors %}
+                    <p class="text--error">{{ error }}</p>
+                {% endfor %}
+            </div>
+            
+            <div class="form__section-actions">
+                <button type="button" class="button button--outline button--md form__section-prev">Previous</button>
+                <button type="button" class="button button--outline button--md form__section-next">Next: Settings</button>
+            </div>
+        </div>
+        
+        <div class="form__section" data-section="3">
+            <h2 class="form__section-title">Settings</h2>
+            <p class="form__section-description">Configure visibility and permissions</p>
+            
+            <div class="form__group">
+                <label class="checkbox">
+                    {{ form.is_private(class="checkbox__input") }}
+                    <span class="checkbox__label">{{ form.is_private.label.text }}</span>
+                </label>
+            </div>
+            
+            <div class="form__group">
+                <label class="checkbox">
+                    {{ form.show_meta(class="checkbox__input") }}
+                    <span class="checkbox__label">{{ form.show_meta.label.text }}</span>
+                </label>
+            </div>
+            
+            <div class="form__group">
+                <label class="checkbox">
+                    {{ form.can_download(class="checkbox__input") }}
+                    <span class="checkbox__label">{{ form.can_download.label.text }}</span>
+                </label>
+            </div>
+            
+            <div class="form__actions">
+                <button type="button" class="button button--outline button--md form__section-prev">Previous</button>
+                {{ form.submit(class="button button--primary button--md") }}
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.form__section');
+    const progressSteps = document.querySelectorAll('.form__progress-step');
+    let currentSection = 1;
+    
+    function showSection(sectionNumber) {
+        sections.forEach(section => {
+            section.classList.remove('form__section--active');
+            if (parseInt(section.dataset.section) === sectionNumber) {
+                section.classList.add('form__section--active');
+            }
+        });
+        
+        progressSteps.forEach(step => {
+            step.classList.remove('form__progress-step--active');
+            if (parseInt(step.dataset.step) <= sectionNumber) {
+                step.classList.add('form__progress-step--active');
+            }
+        });
+        
+        currentSection = sectionNumber;
+    }
+    
+    document.querySelectorAll('.form__section-next').forEach(button => {
+        button.addEventListener('click', () => {
+            if (validateSection(currentSection)) {
+                showSection(currentSection + 1);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.form__section-prev').forEach(button => {
+        button.addEventListener('click', () => {
+            showSection(currentSection - 1);
+        });
+    });
+    
+    function validateSection(sectionNumber) {
+        let isValid = true;
+        
+        if (sectionNumber === 1) {
+            const titleInput = document.querySelector('#title');
+            if (titleInput && !titleInput.value.trim()) {
+                isValid = false;
+            }
+        }
+        
+        return isValid;
+    }
+    
+    progressSteps.forEach(step => {
+        step.addEventListener('click', () => {
+            const stepNumber = parseInt(step.dataset.step);
+            if (stepNumber < currentSection || validateSection(currentSection)) {
+                showSection(stepNumber);
+            }
+        });
+    });
+
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+                    'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'code', '|',
+                    'alignment', '|',
+                    'bulletedList', 'numberedList', 'todoList', '|',
+                    'outdent', 'indent', '|',
+                    'link', 'blockQuote', 'codeBlock', 'imageUpload', 'insertTable', 'mediaEmbed', 'horizontalLine', '|',
+                    'specialCharacters', 'removeFormat', '|',
+                    'style', 'highlight', '|',
+                    'undo', 'redo',
+                ],
+                shouldNotGroupWhenFull: true
+            },
+            image: {
+                toolbar: [
+                    'imageStyle:inline',
+                    'imageStyle:block',
+                    'imageStyle:wrapText',
+                    '|',
+                    'toggleImageCaption',
+                    'imageTextAlternative',
+                    '|',
+                    'resizeImage'
+                ],
+                resizeOptions: [
+                    {
+                        name: 'resizeImage:original',
+                        label: 'Original',
+                        value: null
+                    },
+                    {
+                        name: 'resizeImage:50',
+                        label: '50%',
+                        value: '50'
+                    },
+                    {
+                        name: 'resizeImage:75',
+                        label: '75%',
+                        value: '75'
+                    }
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells',
+                    'tableCellProperties',
+                    'tableProperties'
+                ]
+            },
+            list: {
+                properties: {
+                    styles: true,
+                    startIndex: true,
+                    reversed: true
+                }
+            },
+            simpleUpload: {
+                uploadUrl: "{{ url_for('files_bp.upload_images') }}",
+                
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                }
+            },
+            specialCharacters: [
+                'SpecialCharactersText',
+                'SpecialCharactersMathematical',
+                'SpecialCharactersCurrency',
+                'SpecialCharactersArrows'
+            ],
+            htmlSupport: {
+                allow: [
+                    {
+                        name: /.*/,
+                        attributes: true,
+                        classes: true,
+                        styles: true
+                    }
+                ]
+            },
+            style: {
+                definitions: [
+                    {
+                        name: 'Info box',
+                        element: 'div',
+                        classes: ['info-box']
+                    },
+                    {
+                        name: 'Warning box',
+                        element: 'div',
+                        classes: ['warning-box']
+                    }
+                ]
+            }
+        })
+        .then(editor => {
+            window.editor = editor;
+            console.log('CKEditor 5 initialized successfully');
+            
+            editor.model.document.on('change:data', () => {
+                // ...
+            });
+        })
+        .catch(error => {
+            console.error('Error initializing CKEditor 5:', error);
+        });
+    
+    const fileUploadInput = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const filePreview = document.getElementById('file-preview');
+
+    if (fileUploadInput && fileNameDisplay && filePreview) {
+        fileUploadInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            
+            fileNameDisplay.textContent = file.name;
+            fileNameDisplay.style.display = 'block';
+            filePreview.innerHTML = '';
+            
+            if (is_3d_model(file.name)) {
+                filePreview.innerHTML = `
+                    <p>3D model file detected: ${file.name}</p>
+                    <p class="text--success">This file will be previewable on the item page.</p>
+                `;
+            } else {
+                filePreview.innerHTML = `
+                    <p>File type: ${file.name.split('.').pop().toUpperCase()}</p>
+                    <p class="text--warning">This file type won't have a preview on the item page.</p>
+                `;
+            }
+        });        
+    }
+    
+    function is_3d_model(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        return ['gltf', 'glb', 'obj', 'fbx', 'stl', 'dae', 'ply', '3ds'].includes(ext);
+    }
+    
+    const imagePicker = document.querySelector('.image-picker');
+    if (!imagePicker) return;
+    
+    const imageInput = imagePicker.querySelector('.image-picker__input');
+    const imageContainer = imagePicker.querySelector('.image-picker__container');
+    const form = imagePicker.closest('form');
+    
+    let images = [];
+    
+    const existingImages = imageContainer.querySelectorAll('.image-picker__item');
+    existingImages.forEach(img => {
+        images.push({
+            url: img.querySelector('img').src,
+            filename: img.dataset.imageUrl,
+            isExisting: true
+        });
+        
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'existing_images';
+        hiddenInput.value = img.dataset.imageUrl;
+        form.appendChild(hiddenInput);
+    });
+    
+    const addButton = document.createElement('div');
+    addButton.className = 'image-picker__add';
+    addButton.innerHTML = `
+        <div class="image-picker__add-icon">+</div>
+        <div class="image-picker__add-text">Add Images</div>
+    `;
+    imageContainer.appendChild(addButton);
+    
+    imageInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+            
+        files.forEach(file => {
+            if (!file.type.match('image.*')) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                images.push({
+                    url: e.target.result,
+                    file: file,
+                    isExisting: false
+                });
+                updateImageDisplay();
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+    
+    addButton.addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    function updateImageDisplay() {
+        document.querySelectorAll('input[name="existing_images"]').forEach(el => el.remove());
+        
+        imageContainer.innerHTML = '';
+        
+        images.forEach((img, index) => {
+            const item = document.createElement('div');
+            item.className = 'image-picker__item';
+            if (img.isExisting) {
+                item.dataset.imageUrl = img.filename;
+                
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'existing_images';
+                hiddenInput.value = img.filename;
+                form.appendChild(hiddenInput);
+            }
+            
+            const imgEl = document.createElement('img');
+            imgEl.className = 'image-picker__image';
+            imgEl.src = img.url;
+            
+            const removeBtn = document.createElement('div');
+            removeBtn.className = 'image-picker__remove';
+            removeBtn.innerHTML = '×';
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                images.splice(index, 1);
+                updateImageDisplay();
+            });
+            
+            item.appendChild(imgEl);
+            item.appendChild(removeBtn);
+            imageContainer.appendChild(item);
+        });
+        
+        const newAddButton = addButton.cloneNode(true);
+        newAddButton.addEventListener('click', () => imageInput.click());
+        imageContainer.appendChild(newAddButton);
+    }
+
+    updateImageDisplay();
+});
+</script>
+{% endblock %}

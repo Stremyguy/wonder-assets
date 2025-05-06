@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="category-page">
+        <div class="category-page__header">
+            <h1 class="category-page__title">{{ category.title }}</h1>
+            
+            {% if category.full_description %}
+                <p class="category-page__description">{{ category.full_description }}</p>
+            {% endif %}
+
+            {% if can_change_data %}
+                <div class="category-page__meta">
+                    <div><strong>Creator:</strong> {{ category.creator.username }}</div>
+                    <div><strong>Visible To Roles:</strong> {{ category.visible_to_roles | map(attribute='name') | join(', ') | title }}</div>
+                </div>
+
+                <div class="category-page__actions">
+                    <a href="{{ url_for('categories.edit_category', category_id=category.id) }}" 
+                        class="icon icon--medium bi bi-pencil-square"></a>
+                    
+                    <a class="icon icon--medium bi bi-trash" id="deleteBtn"></a>
+                </div>
+                <a class="button button--primary button--md" href="/categories/{{ category.id }}/items">+ Create</a>
+            {% endif %}
+        </div>
+        
+        <div class="category-page__items">
+            {% if items %}
+                {% for item in items %}
+                    <div class="item-card" onclick="location.href='/items/{{ item.id }}'">
+                        {% if item.item_url and item.item_url.split('.')[-1].lower() in ['gltf', 'glb', 'obj', 'fbx', 'stl', 'dae', 'ply', '3ds'] %}
+                            <div class="item-card__model-preview">
+                                <model-viewer
+                                    src="{{ url_for('static', filename='items/' + item.item_url) }}"
+                                    alt="{{ item.title }} 3D model"
+                                    shadow-intensity="1"
+                                    exposure="0.8"
+                                    environment-image="neutral">
+                                </model-viewer>
+                            </div>
+                        {% else %}
+                            <div class="item-card__image-container">
+                                <img class="item-card__image" 
+                                    src="{{ url_for('static', filename='images/items/' + item.images[0].image_url) if item.images and item.images[0].image_url else url_for('static', filename='images/item_logo_default.png') }}"
+                                    alt="{{ item.title }} preview"
+                                    onerror="this.src='{{ url_for('static', filename='images/item_logo_default.png') }}'">
+                            </div>
+                        {% endif %}
+                        
+                        <div class="item-card__content">
+                            <h3 class="item-card__title">{{ item.title }}</h3>
+                            <div class="item-card__meta">
+                                <span>{{ item.type.name }}</span>
+                                <span>TEST MB</span>
+                            </div>
+                        </div>
+                        {% if item.item_url %}
+                            <div class="item-card__badge">TEST</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>There are no items yet</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="modal modal--hidden" id="deleteModal">
+        <div class="modal__content">
+            <p class="modal__text">Are you sure you want to delete the category?</p>
+            <div class="modal__actions">
+                <a href="/categories/delete/{{ category.id }}" class="button button--error button--sm">Yes</a>
+                <button class="button button--default button--sm" id="cancelDelete">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal__overlay modal--hidden" id="modalOverlay"></div>
+    
+    <script>
+        const deleteBtn = document.getElementById('deleteBtn');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelBtn = document.getElementById('cancelDelete');
+        const modalOverlay = document.getElementById('modalOverlay');
+
+        deleteBtn.addEventListener('click', () => {
+            deleteModal.classList.remove('modal--hidden');
+            modalOverlay.classList.remove('modal--hidden');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            deleteModal.classList.add('modal--hidden');
+            modalOverlay.classList.add('modal--hidden');
+        });
+
+        modalOverlay.addEventListener('click', () => {
+            deleteModal.classList.add('modal--hidden');
+            modalOverlay.classList.add('modal--hidden');
+        });
+    </script>
+{% endblock %}

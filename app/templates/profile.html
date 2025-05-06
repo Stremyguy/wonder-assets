@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-page">
+    <div class="profile-page__header">
+        <div class="profile__picture profile__picture--xl">
+            <img src="{{ url_for('static', filename=user.avatar_url) }}" alt="User avatar">
+        </div>
+        <div class="profile-page__info">
+            <div class="profile-page__username">{{ user.username }}</div>
+            {% if user.bio %}
+                <p class="profile-page__bio">{{ user.bio }}</p>
+            {% endif %}
+        </div>
+        {% if user_id == current_user.id %}
+            <a class="button button--error button--md" id="logoutBtn">Log out</a>
+        {% endif %}
+    </div>
+        
+    <h3 class="profile-page__section-title">User content</h3>
+    <div class="profile-page__content">
+        <!-- Stuff -->
+    </div>
+    <div class="modal modal--hidden" id="logoutModal">
+        <div class="modal__content">
+            <p class="modal__text">Are you sure you want to log out?</p>
+            <div class="modal__actions">
+                <a href="{{ url_for('auth.logout') }}" class="button button--error button--sm">Yes, log out</a>
+                <button class="button button--default button--sm" id="cancelLogout">Cancel</button>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="modal__overlay modal--hidden" id="modalOverlay"></div>
+ 
+    <script>
+        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutModal = document.getElementById('logoutModal');
+        const cancelBtn = document.getElementById('cancelLogout');
+        const modalOverlay = document.getElementById('modalOverlay');
+
+        logoutBtn.addEventListener('click', () => {
+            logoutModal.classList.remove('modal--hidden');
+            modalOverlay.classList.remove('modal--hidden');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            logoutModal.classList.add('modal--hidden');
+            modalOverlay.classList.add('modal--hidden');
+        });
+
+        modalOverlay.addEventListener('click', () => {
+            logoutModal.classList.add('modal--hidden');
+            modalOverlay.classList.add('modal--hidden');
+        });
+    </script>
+{% endblock %}

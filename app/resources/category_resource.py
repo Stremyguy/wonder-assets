@@ -1,55 +1,42 @@
 from flask import jsonify
 from flask_restful import Resource, abort
-from app.scripts import db_session
-from app.models import Categories
+from app.services.category_service import get_all_categories, get_category_by_id, delete_category, create_category
 from app.resources.parsers.category_parser import category_post_args
-from sqlalchemy.orm import Session
-
-
-def get_category_or_404(category_id: int, session: Session) -> Categories:
-    category = session.query(Categories).get(category_id)
-    
-    if not category:
-        abort(404, message=f"Category {category_id} not found")
-    
-    return category
 
 
 class CategoryResource(Resource):
     def get(self, category_id: int) -> dict:
-        session = db_session.create_session()
-        category = get_category_or_404(category_id, session)
+        category = get_category_by_id(category_id)
         
-        return jsonify({"category": category.to_dict()})
+        if not category:
+            abort(404, message="Category not found")
+        
+        return {"category": category.to_dict()}
     
     def delete(self, category_id: int) -> dict:
-        session = db_session.create_session()
-        category = get_category_or_404(category_id, session)
+        if not delete_category(category_id):
+            abort(404, message="Category not found")
         
-        session.delete(category)
-        session.commit()
-        
-        return jsonify({"success": "OK"})
+        return {"success": "OK"}
 
 
 class CategoriesResource(Resource):
     def get(self) -> dict:
-        session = db_session.create_session()
-        categories = session.query(Categories).all()
+        categories = get_all_categories()
         
-        return jsonify({"categories": [category.to_dict() for category in categories]})
+        return {"categories": [category.to_dict() for category in categories]}
     
     def post(self) -> dict:
         args = category_post_args.parse_args()
-        session = db_session.create_session()
         
-        category = Categories(
+        category = create_category(
             title=args["title"],
-            description=args["description"],
+            short_description=args["short_description"],
+            full_description=args["full_description"],
+            creator_id=args["creator_id"],
+            role_ids=args["role_ids"],
+            is_private=args["is_private"],
             is_testing=args["is_testing"],
         )
         
-        session.add(category)
-        session.commit()
-        
-        return jsonify({"success": "OK"})
+        return {"success": "OK", "category": category.to_dict()}

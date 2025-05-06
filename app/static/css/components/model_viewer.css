@@ -1,0 +1,76 @@
+.model-viewer__container {
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f5f5f5;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+model-viewer {
+    --poster-color: transparent;
+    --progress-bar-color: #6A0DAD;
+    --progress-bar-height: 4px;
+    --progress-mask: #f5f5f5;
+    
+    width: 100%;
+    height: 500px;
+    background-color: #f5f5f5;
+    outline: none;
+}
+
+.model-viewer__controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.model-viewer__control-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #6A0DAD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.model-viewer__control-btn:hover {
+    background: rgba(106, 13, 173, 0.9);
+    color: white;
+}
+
+.model-viewer__control-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.model-viewer__loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 245, 245, 0.8);
+    z-index: 5;
+}
+
+model-viewer::part(default-ar-button) {
+    background-color: #6A0DAD;
+    color: white;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-family: 'Inter', sans-serif;
+}

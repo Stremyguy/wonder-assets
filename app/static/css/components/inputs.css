@@ -94,3 +94,342 @@
     color: #333;
     cursor: pointer;
 }
+
+/* ============================= */
+/* ===== DOT STYLE CHECKBOX ==== */
+/* ============================= */
+
+.checkbox--dot {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox--dot__input {
+    appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    border: 2px solid #6A0DAD;
+    background-color: white;
+    position: relative;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.checkbox--dot__input::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.6rem;
+    height: 0.6rem;
+    background-color: #6A0DAD;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease-in-out;
+}
+
+.checkbox--dot__input:checked::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.checkbox--dot__label {
+    font-size: 0.95rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.checkbox--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.checkbox--dot__input:disabled {
+    cursor: not-allowed;
+    border-color: #aaa;
+    background-color: #eee;
+}
+
+/* ============================= */
+/* ======= DEFAULT INPUT ======= */
+/* ============================= */
+
+.input--default {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    transition: border-color 0.3s ease;
+    width: 100%;
+}
+
+.input--default:hover,
+.input--default:focus {
+    border-color: #6A0DAD;
+    outline: none;
+}
+
+.input--select-multiple {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.input--select-multiple:focus {
+    border-color: #6A0DAD;
+    outline: none;
+}
+
+/* ============================= */
+/* ======== SELECT INPUT ======= */
+/* ============================= */
+.select {
+    position: relative;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    margin: 0.75rem 0 1.5rem;
+}
+
+.select__control {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 0.85rem 3rem 0.85rem 1.1rem;
+    font-size: 1rem;
+    border: 2px solid #D1C4E9;
+    border-radius: 12px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 12px rgba(106, 13, 173, 0.08);
+}
+
+.select__control:hover {
+    border-color: #B399D4;
+    box-shadow: 0 3px 10px rgba(106, 13, 173, 0.15);
+}
+
+.select__control:focus {
+    outline: none;
+    border-color: #6A0DAD;
+    box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.15);
+}
+
+.select__icon {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    color: #6A0DAD;
+    font-size: 1rem;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 1.5rem;
+}
+
+.select__icon .bi {
+    position: relative;
+    top: 1px;
+}
+
+/* ============================= */
+/* ======== FILE UPLOAD ======== */
+/* ============================= */
+.file-upload {
+    position: relative;
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+.file-upload__input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-upload__label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 2px dashed #D1C4E9;
+    border-radius: 12px;
+    background-color: rgba(209, 196, 233, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.file-upload__label:hover {
+    background-color: rgba(209, 196, 233, 0.2);
+    border-color: #6A0DAD;
+}
+
+.file-upload__icon {
+    font-size: 2rem;
+    color: #6A0DAD;
+    margin-bottom: 0.5rem;
+}
+
+.file-upload__text {
+    font-size: 1rem;
+    color: #6A0DAD;
+    font-weight: 500;
+}
+
+.file-upload__hint {
+    font-size: 0.875rem;
+    color: #6E6E6E;
+    margin-top: 0.5rem;
+}
+
+.file-upload__filename {
+    margin-top: 12px;
+    font-size: 0.875rem;
+    color: #6E6E6E;
+    padding: 8px 12px;
+    background-color: rgba(209, 196, 233, 0.1);
+    border-radius: 8px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-upload__preview {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #6A0DAD;
+    font-weight: 500;
+}
+
+/* ============================= */
+/* ======== IMAGE PICKER ======= */
+/* ============================= */
+.image-picker {
+    margin: 1.5rem 0;
+}
+
+.image-picker__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.image-picker__container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.image-picker__item {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-picker__item:hover {
+    transform: translateY(-2px);
+}
+
+.image-picker__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-picker__remove {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.image-picker__item:hover .image-picker__remove {
+    opacity: 1;
+}
+
+.image-picker__add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border: 2px dashed #D1C4E9;
+    border-radius: 8px;
+    background-color: rgba(209, 196, 233, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-picker__add:hover {
+    background-color: rgba(209, 196, 233, 0.2);
+    border-color: #6A0DAD;
+}
+
+.image-picker__add-icon {
+    font-size: 1.5rem;
+    color: #6A0DAD;
+    margin-bottom: 0.5rem;
+}
+
+.image-picker__add-text {
+    font-size: 0.875rem;
+    color: #6A0DAD;
+}
+
+.image-picker__error {
+    color: #DC3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.image-picker--invalid .image-picker__error {
+    display: block;
+}
+
+.image-picker--invalid .image-picker__add {
+    border-color: #DC3545;
+}

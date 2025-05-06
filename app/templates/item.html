@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="item-page">
+    <div class="item-page__layout">
+        <div class="item-page__content">
+            <div class="item-page__header">
+                <a href="/categories/{{ item.category_id }}" class="button button--default button--md">Back</a>
+                <h1 class="item-page__title">{{ item.title }}</h1>
+
+                {% if item.show_meta %}
+                <div class="item-page__meta">
+                    <div><strong>Type:</strong> {{ item.type.name }}</div>
+                    <div><strong>Uploaded:</strong> {{ item.created_date.strftime('%Y-%m-%d') }}</div>
+                    <div><strong>Creator:</strong> {{ item.creator.username }}</div>
+                    {% if item.item_url %}
+                    <div><strong>Filename:</strong> {{ item.item_url }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if can_change_data %}
+                <div class="item-page__actions">
+                    <a href="{{ url_for('items.edit_item', item_id=item.id) }}" 
+                        class="icon icon--medium bi bi-pencil-square"></a>
+                    
+                    <a class="icon icon--medium bi bi-trash" id="deleteBtn"></a>
+                </div>
+                {% endif %}
+
+                {% if is_3d_item %}
+                <div class="model-viewer__container">
+                    <div class="model-viewer__wrapper">
+                        <model-viewer
+                            src="{{ model_path }}"
+                            alt="{{ item.title }} 3D model"
+                            auto-rotate
+                            camera-controls
+                            ar
+                            shadow-intensity="1"
+                            exposure="1.2"
+                            environment-image="neutral">
+                            <div class="model-viewer__controls" slot="controls">
+                                <button class="model-viewer__control-btn" id="rotate-btn" title="Toggle Auto Rotate">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z"/>
+                                    </svg>
+                                </button>
+                                <button class="model-viewer__control-btn" id="ar-btn" title="View in AR">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M12,4C16.42,4 20,7.58 20,12C20,16.42 16.42,20 12,20C7.58,20 4,16.42 4,12C4,7.58 7.58,4 12,4M12,5C8.14,5 5,8.14 5,12C5,15.86 8.14,19 12,19C15.86,19 19,15.86 19,12C19,8.14 15.86,5 12,5M12,7.25C13.24,7.25 14.25,8.26 14.25,9.5C14.25,10.74 13.24,11.75 12,11.75C10.76,11.75 9.75,10.74 9.75,9.5C9.75,8.26 10.76,7.25 12,7.25M12,12.75C13.24,12.75 14.25,13.76 14.25,15C14.25,16.24 13.24,17.25 12,17.25C10.76,17.25 9.75,16.24 9.75,15C9.75,13.76 10.76,12.75 12,12.75Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </model-viewer>
+                    </div>
+                </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const modelViewer = document.querySelector('model-viewer');
+                    const rotateBtn = document.getElementById('rotate-btn');
+                    
+                    if (modelViewer && rotateBtn) {
+                        rotateBtn.addEventListener('click', () => {
+                            modelViewer.autoRotate = !modelViewer.autoRotate;
+                            rotateBtn.classList.toggle('active', modelViewer.autoRotate);
+                        });
+                    }
+                });
+                </script>
+                {% endif %}
+
+                {% if item.images|length > 1 %}
+                <div class="item-page__slideshow">
+                    {% for image in item.images %}
+                    <div class="item-page__slide {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
+                        <img src="{{ url_for('static', filename='images/items/' + image.image_url) }}"
+                            alt="{{ item.title }} preview {{ loop.index }}"
+                            class="item-page__slideshow-image"
+                            data-lightbox="{{ loop.index0 }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="lightbox">
+                    <div class="lightbox__content">
+                        <button class="lightbox__close">&times;</button>
+                        <button class="lightbox__prev">&lsaquo;</button>
+                        <button class="lightbox__next">&rsaquo;</button>
+                        <div class="lightbox__image-container">
+                            <img class="lightbox__image" src="" alt="">
+                        </div>
+                    </div>
+                </div>
+
+                {% if item.images|length > 1 %}
+                <div class="item-page__dots-nav">
+                    {% for image in item.images %}
+                    <button class="item-page__dot {% if loop.first %}active{% endif %}"
+                            data-index="{{ loop.index0 }}"
+                            aria-label="Go to slide {{ loop.index }}"></button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if item.description %}
+                <div class="item-page__description ckeditor-content">
+                    {{ item.description | safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if item.can_download and item.item_url %}    
+        <div class="item-page__sidebar">
+            <div class="sidebar-block">
+                <a href="{{ url_for('items.download_file', filename=item.item_url) }}" 
+                    class="button button--primary button--md">
+                    Download
+                </a>
+                <a class="button button--md">
+                    Add to favorite
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        <div class="modal modal--hidden" id="deleteModal">
+            <div class="modal__content">
+                <p class="modal__text">Are you sure you want to delete the item?</p>
+                <div class="modal__actions">
+                    <a href="/items/delete/{{ item.id }}" class="button button--error button--sm">Yes</a>
+                    <button class="button button--default button--sm" id="cancelDelete">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal__overlay modal--hidden" id="modalOverlay"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slideshow = document.querySelector('.item-page__slideshow');
+    const slides = document.querySelectorAll('.item-page__slide');
+    const thumbnails = document.querySelectorAll('.item-page__thumbnail');
+    const dots = document.querySelectorAll('.item-page__dot');
+    let slideshowInterval;
+    let currentIndex = 0;
+
+    // Only initialize if there are slides
+    if (slides.length > 1) {
+        // Click handlers for thumbnails and dots
+        const navItems = [...thumbnails, ...dots];
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                goToSlide(index);
+            });
+        });
+
+        // Go to specific slide
+        function goToSlide(index) {
+            // Update slides
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            // Update nav items
+            navItems.forEach(item => item.classList.remove('active'));
+            thumbnails[index]?.classList.add('active');
+            dots[index]?.classList.add('active');
+            
+            currentIndex = index;
+        }
+
+        // Auto-rotate slideshow
+        function startSlideshow() {
+            slideshowInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                goToSlide(currentIndex);
+            }, 5000);
+        }
+
+        // Pause on hover
+        slideshow.addEventListener('mouseenter', () => clearInterval(slideshowInterval));
+        slideshow.addEventListener('mouseleave', startSlideshow);
+
+        // Initialize
+        startSlideshow();
+    }
+
+
+    
+    // Lightbox functionality
+    const lightbox = document.querySelector('.lightbox');
+    const lightboxImg = document.querySelector('.lightbox__image');
+    const lightboxClose = document.querySelector('.lightbox__close');
+    const lightboxPrev = document.querySelector('.lightbox__prev');
+    const lightboxNext = document.querySelector('.lightbox__next');
+    const lightboxImageContainer = document.querySelector('.lightbox__image-container');
+    
+    let currentLightboxIndex = 0;
+    let isDragging = false;
+    let startPos = { x: 0, y: 0 };
+    let translate = { x: 0, y: 0 };
+    let scale = 1;
+    
+    // Get all images that can open the lightbox
+    const images = document.querySelectorAll('.item-page__slideshow-image');
+    
+    // Open lightbox when clicking an image
+    images.forEach(img => {
+        img.addEventListener('click', function(e) {
+            // Prevent the click from bubbling up if there are other click handlers
+            e.stopPropagation();
+            
+            currentLightboxIndex = parseInt(this.dataset.lightbox);
+            openLightbox(currentLightboxIndex);
+        });
+    });
+    
+    // Open lightbox with specific image
+    function openLightbox(index) {
+        const activeSlide = document.querySelector(`.item-page__slide[data-index="${index}"]`);
+        const imgSrc = activeSlide.querySelector('img').src;
+        const imgAlt = activeSlide.querySelector('img').alt;
+        
+        lightboxImg.src = imgSrc;
+        lightboxImg.alt = imgAlt;
+        lightbox.classList.add('show');
+        document.body.classList.add('lightbox-open');
+        
+        // Reset zoom and pan
+        scale = 1;
+        translate = { x: 0, y: 0 };
+        updateImageTransform();
+    }
+    
+    // Close lightbox
+    function closeLightbox() {
+        lightbox.classList.remove('show');
+        document.body.classList.remove('lightbox-open');
+        
+        // Reset zoom and pan
+        scale = 1;
+        translate = { x: 0, y: 0 };
+        updateImageTransform();
+    }
+    
+    // Navigate to previous image
+    function prevImage(e) {
+        e.stopPropagation();
+        currentLightboxIndex = (currentLightboxIndex - 1 + images.length) % images.length;
+        openLightbox(currentLightboxIndex);
+    }
+    
+    // Navigate to next image
+    function nextImage(e) {
+        e.stopPropagation();
+        currentLightboxIndex = (currentLightboxIndex + 1) % images.length;
+        openLightbox(currentLightboxIndex);
+    }
+    
+    // Update image transform for zoom/pan
+    function updateImageTransform() {
+        lightboxImg.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${scale})`;
+    }
+    
+    // Event listeners
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', prevImage);
+    lightboxNext.addEventListener('click', nextImage);
+    
+    // Close lightbox when clicking on the background
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLightbox();
+        }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (!lightbox.classList.contains('show')) return;
+        
+        switch (e.key) {
+            case 'Escape':
+                closeLightbox();
+                break;
+            case 'ArrowLeft':
+                prevImage(e);
+                break;
+            case 'ArrowRight':
+                nextImage(e);
+                break;
+        }
+    });
+    
+    // Zoom with mouse wheel
+    lightboxImageContainer.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+        zoomImage(zoomFactor, e.clientX, e.clientY);
+    });
+    
+    // Zoom in/out
+    function zoomImage(zoomFactor, clientX, clientY) {
+        const rect = lightboxImageContainer.getBoundingClientRect();
+        const containerCenterX = rect.width / 2;
+        const containerCenterY = rect.height / 2;
+        
+        // Calculate mouse position relative to container center
+        const mouseX = clientX ? clientX - rect.left - containerCenterX : 0;
+        const mouseY = clientY ? clientY - rect.top - containerCenterY : 0;
+        
+        const prevScale = scale;
+        scale = Math.max(1, scale * zoomFactor);
+        
+        // Adjust translation to zoom toward mouse position
+        translate.x = (translate.x - mouseX) * (scale / prevScale) + mouseX;
+        translate.y = (translate.y - mouseY) * (scale / prevScale) + mouseY;
+        
+        updateImageTransform();
+    }
+});
+</script>
+<script>
+    const deleteBtn = document.getElementById('deleteBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelBtn = document.getElementById('cancelDelete');
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    deleteBtn.addEventListener('click', () => {
+        deleteModal.classList.remove('modal--hidden');
+        modalOverlay.classList.remove('modal--hidden');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        deleteModal.classList.add('modal--hidden');
+        modalOverlay.classList.add('modal--hidden');
+    });
+
+    modalOverlay.addEventListener('click', () => {
+        deleteModal.classList.add('modal--hidden');
+        modalOverlay.classList.add('modal--hidden');
+    });
+</script>
+{% endblock %}

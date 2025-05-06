@@ -1,0 +1,71 @@
+/* === Base table styling === */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.table__head {
+    background-color: #1A1A1A;
+    color: #fff;
+    text-align: left;
+}
+
+.table__row {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table__cell,
+.table__header {
+    padding: 0.75rem 1rem;
+}
+
+/* === Striped table === */
+.table--striped .table__row:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* === Hoverable table === */
+.table--hover .table__row:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* === Bordered table === */
+.table--bordered .table__cell,
+.table--bordered .table__header {
+    border: 1px solid #ddd;
+}
+
+/* === Table modifiers for color status === */
+.table__cell--success {
+    background-color: #e6f4ea;
+    color: #28A745;
+}
+
+.table__cell--error {
+    background-color: #fcebea;
+    color: #DC3545;
+}
+
+.table__cell--warning {
+    background-color: #fff8e6;
+    color: #FFC107;
+}
+
+/* === Responsive tweaks === */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table__cell,
+    .table__header {
+        padding: 0.5rem 0.75rem;
+    }
+}

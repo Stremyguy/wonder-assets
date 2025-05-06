@@ -12,14 +12,53 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/icons.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/button.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/inputs.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/tables.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/modal.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/form.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/lightbox.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/file.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/model_viewer.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/authentication.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/categories.css') }}">
-    
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/items.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/profile.css') }}">
+
+        <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-            
+
+        <!-- Bootstrap icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
+        <!-- Code highlighting -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+
+        <!-- CKeditor -->
+        <script src="{{ url_for('static', filename='js/ckeditor5/build/ckeditor.js') }}"></script>
+        
+        <!-- 3D viewer -->
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
         <style>
             .icon_type_search {
                 background-image: url("{{ url_for('static', filename='images/icons/search_icon.svg') }}")
+            }
+
+            .icon_private {
+                background-image: url("{{ url_for('static', filename='images/icons/private_icon.svg') }}")
+            }
+
+            .icon_testing {
+                background-image: url("{{ url_for('static', filename='images/icons/testing_icon.svg') }}")
+            }
+
+            .icon_edit {
+                background-image: url("{{ url_for('static', filename='images/icons/edit_icon.svg') }}")
+            }
+
+            .icon_delete {
+                background-image: url("{{ url_for('static', filename='images/icons/delete_icon.svg') }}")
             }
         </style>
     </head>
@@ -28,17 +67,31 @@
             <header>
                 <div class="navbar-top">
                     <div class="navbar-top__left">
-                        <a href="#">
+                        <a href="/">
                             <img class="logo" src="{{ url_for('static', filename='images/wonder_assets_logo.png') }}" alt="Wonder Assets Logo">
                         </a>
+                        {% for role in current_user.roles %}
+                            {% if role.id == 4 or role.id == 3 %}
+                                <a class="button button--default button--md" href="/admin_panel/">Admin panel</a>
+                            {% endif %}
+                        {% endfor %}
                     </div>
 
                     <div class="navbar-top__right">
                         <a href="#" class="navbar-top__element">
-                            <span class="icon icon_type_search"></span>
+                            <span class="bi bi-search"></span>
                         </a>
-                        <a class="button button--auth button--auth-login" href="#">Login</a>
-                        <a class="button button--auth button--auth-signup" href="#">Sign up</a>
+                        {% if current_user.is_authenticated %}
+                            <div class="profile__user" onclick="location.href='/profile/{{ current_user.id }}'" style="cursor: pointer">
+                                <div class="profile__picture profile__picture--medium">
+                                    <img src="{{ url_for('static', filename=current_user.avatar_url) }}">
+                                </div>
+                                <span class="profile__username">{{ current_user.username }}</span>
+                            </div>
+                        {% else %}
+                            <a class="button button--auth button--auth-login" href="/login">Login</a>
+                            <a class="button button--auth button--auth-signup" href="/signup">Sign up</a>
+                        {% endif %}
                     </div>
                 </div>
             </header>
