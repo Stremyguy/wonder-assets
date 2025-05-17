@@ -34,8 +34,7 @@ Thumbs.db
 # Node.js / npm
 node_modules/
 
-# Items folders
+# Items / images folders
 app/static/items/*
 app/static/images/items/*node_modules/
-
-app/static/items/*
+app/static/images/*
