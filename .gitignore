@@ -37,3 +37,5 @@ node_modules/
 # Items folders
 app/static/items/*
 app/static/images/items/*node_modules/
+
+app/static/items/*
