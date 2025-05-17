@@ -3,7 +3,7 @@
 <div class="profile-page">
     <div class="profile-page__header">
         <div class="profile__picture profile__picture--xl">
-            <img src="{{ url_for('static', filename=user.avatar_url) }}" alt="User avatar">
+            <img src="{{ url_for('static', filename=user.get_avatar_url()) }}" alt="User avatar">
         </div>
         <div class="profile-page__info">
             <div class="profile-page__username">{{ user.username }}</div>
@@ -12,13 +12,58 @@
             {% endif %}
         </div>
         {% if user_id == current_user.id %}
-            <a class="button button--error button--md" id="logoutBtn">Log out</a>
+            <a class="button button--error button--md" id="logoutBtn">
+                <span class="button__icon">
+                    <i class="bi bi-box-arrow-right"></i>
+                </span>
+                Log out
+            </a>
         {% endif %}
     </div>
-        
+
+    {% if can_edit %}
+    <a href="/profile/edit/{{ user.id }}" class="button button--default button--md">
+        Edit profile
+    </a>
+    {% endif %}
+    
     <h3 class="profile-page__section-title">User content</h3>
     <div class="profile-page__content">
-        <!-- Stuff -->
+        {% if items %}
+        {% for item in items %}
+            <div class="item-card" onclick="location.href='/items/{{ item.id }}'">
+                {% if item.item_url and item.item_url.split('.')[-1].lower() in ['gltf', 'glb', 'obj', 'fbx', 'stl', 'dae', 'ply', '3ds'] %}
+                <div class="item-card__model-preview">
+                    <model-viewer
+                        src="{{ url_for('static', filename='items/' + item.item_url) }}"
+                        alt="{{ item.title }} 3D model"
+                        shadow-intensity="1"
+                        exposure="0.8"
+                        environment-image="neutral">
+                    </model-viewer>
+                </div>
+                {% else %}
+                <div class="item-card__image-container">
+                    <span class="icon icon--static icon--large bi-box"></span>
+                </div>
+                {% endif %}
+                <div class="item-card__content">
+                    <h3 class="item-card__title">{{ item.title }}</h3>
+                    <div class="item-card__meta">
+                        <span>{{ item.type.name }}</span>
+                        {% if item.item_url %}
+                        <span>{{ item.file_size }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.item_url %}
+                    
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% else %}
+            <p>This user hasn't added any items yet</p>
+        {% endif %}
     </div>
     <div class="modal modal--hidden" id="logoutModal">
         <div class="modal__content">

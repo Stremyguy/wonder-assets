@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form__wrapper">
+    <h1 class="form__title">Edit profile</h1>
+    
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <div class="form__avatar-upload">
+            <div class="form__avatar-container">
+                <img src="{{ url_for('static', filename=user.avatar_url) }}"
+                    alt="Profile picture"
+                    class="form__avatar-image">
+                <div class="form__avatar-overlay">
+                    <i class="bi bi-camera form__avatar-icon"></i>
+                </div>
+                {{ form.avatar(class="form__avatar-input", id="avatarInput", accept="image/*") }}
+            </div>
+            {% for error in form.avatar.errors %}
+                <p class="text--error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form__group">
+            {{ form.username.label(class="form__label") }}
+            {{ form.username(class="input--default", placeholder=" ") }}
+            {% for error in form.username.errors %}
+                <p class="text--error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form__group">
+            {{ form.email.label(class="form__label") }}
+            {{ form.email(class="input--default input--disabled", placeholder=" ") }}
+            {% for error in form.email.errors %}
+                <p class="text--error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form__group">
+            {{ form.bio.label(class="form__label") }}
+            {{ form.bio(class="input--default", placeholder=" ") }}
+            {% for error in form.bio.errors %}
+                <p class="text--error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        {% if show_role_management %}
+        <div class="form__label">
+            <label class="form__label">Roles</label>
+            <div class="form__checkbox-group">
+                {% for role_id, role_name in form.roles.choices %}
+                    <label class="checkbox--dot">
+                        <input
+                            type="checkbox"
+                            name="roles"
+                            value="{{ role_id }}"
+                            id="roles-{{ role_id }}"
+                            {% if role_id in form.roles.data %}checked{% endif %}
+                            class="checkbox--dot__input"
+                        >
+                        <span class="checkbox--dot__label">{{ role_name | title }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {{ form.submit(class="button button--primary button--md") }}
+    </form>
+</div>
+
+<script>
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.querySelector('.form__avatar-image').src = event.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+</script>
+{% endblock %}

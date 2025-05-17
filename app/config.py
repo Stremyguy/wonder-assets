@@ -13,9 +13,9 @@ class Config:
     MAX_CONTENT_LENGTH = 50 * 1024 * 1024
     
     # Subdirectories
-    PROFILE_PICS_FOLDER = os.path.join(BASE_UPLOAD_FOLDER, "profile_pics")
     ITEMS_FOLDER = os.path.join(BASE_UPLOAD_FOLDER, "items")
-    IMAGES_FOLDER = os.path.join(BASE_UPLOAD_FOLDER, "images/items")
+    IMAGES_FOLDER = os.path.join(BASE_UPLOAD_FOLDER, "images")
+    PROFILE_PICS_FOLDER = os.path.join(IMAGES_FOLDER, "profile_pics")
     
     @classmethod
     def ensure_folders_exist(cls: "Config") -> None:

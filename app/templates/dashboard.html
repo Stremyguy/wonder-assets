@@ -1,68 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-</head>
-<body>
-    {% extends "base.html" %}
-    {% block content %}
-        <h1>Dashboard</h1>
-        <div class="main">
-            <h2>Roles <span class="bi bi-table"></span></h2>
-            <table class="table table--striped table--hover table--bordered">
-                <thead class="table__head">
+{% extends "base.html" %}
+{% block content %}
+    <h1>Dashboard</h1>
+    <div class="main">
+        <h2>Users</h2>
+        <table class="table table--striped table--hover table--bordered">
+            <thead class="table__head">
+                <tr class="table__row">
+                    <th class="table__header">Username</th>
+                    <th class="table__header">Email</th>
+                    <th class="table__header">Roles</th>
+                    <th class="table__header">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
                     <tr class="table__row">
-                        <th class="table__header">ID</th>
-                        <th class="table__header">Role name</th>
-                        <th class="table__header">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for role in roles %}
-                        <tr class="table__row">
-                            <td class="table__cell">{{ role.id }}</td>
-                            <td class="table__cell">{{ role.name | title }}</td>
-                            <td class="table__cell">
-                                <button class="button button--md">Edit</button>
-                                <button class="button button--md">Delete</button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <h2>Users</h2>
-            <table class="table table--striped table--hover table--bordered">
-                <thead class="table__head">
-                    <tr class="table__row">
-                        <th class="table__header">Username</th>
-                        <th class="table__header">Email</th>
-                        <th class="table__header">Roles</th>
-                        <th class="table__header">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                        <tr class="table__row">
-                            <td class="table__cell">
-                                <div class="profile__user">
-                                    <div class="profile__picture profile__picture--medium">
-                                        <img src="{{ url_for('static', filename=user.avatar_url) }}">
-                                    </div>
-                                    <span class="profile-page__username--table">{{ user.username }}</span>
+                        <td class="table__cell">
+                            <div class="profile__user">
+                                <div class="profile__picture profile__picture--medium">
+                                    <img src="{{ url_for('static', filename=user.get_avatar_url()) }}">
                                 </div>
-                            </td>
-                            <td class="table__cell">{{ user.email }}</td>
-                            <td class="table__cell">{{ user.roles | map(attribute='name') | join(', ') | title }}</td>
-                            <td class="table__cell">
-                                <button class="button button--md">Edit</button>
-                                <button class="button button--md">Delete</button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                <span class="profile-page__username--table">{{ user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="table__cell">{{ user.email }}</td>
+                        <td class="table__cell">{{ user.roles | map(attribute='name') | join(', ') | title }}</td>
+                        <td class="table__cell">
+                            <a href="/profile/edit/{{ user.id }}" class="button button--default button--md">Edit</a>
+                            <button class="button button--default button--md delete-btn" data-user-id="{{ user.id }}">Delete</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="modal modal--hidden" id="deleteModal">
+        <div class="modal__content">
+            <p class="modal__text">Are you sure you want to delete this user?</p>
+            <div class="modal__actions">
+                <a href="#" class="button button--error button--sm" id="confirmDelete">Yes</a>
+                <button class="button button--default button--sm" id="cancelDelete">Cancel</button>
+            </div>
         </div>
-    {% endblock %}
-</body>
-</html>
+    </div>
+    <div class="modal-overlay modal--hidden" id="modalOverlay"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelBtn = document.getElementById('cancelDelete');
+    const modalOverlay = document.getElementById('modalOverlay');
+    let currentUserId = null;
+        
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            currentUserId = e.target.getAttribute('data-user-id');
+            deleteModal.classList.remove('modal--hidden');
+            modalOverlay.classList.remove('modal--hidden');
+        });
+    });
+        
+    confirmDelete.addEventListener('click', () => {
+        window.location.href = `/profile/delete/${currentUserId}`;
+    });
+        
+    cancelBtn.addEventListener('click', () => {
+        deleteModal.classList.add('modal--hidden');
+        modalOverlay.classList.add('modal--hidden');
+    });
+        
+    modalOverlay.addEventListener('click', () => {
+        deleteModal.classList.add('modal--hidden');
+        modalOverlay.classList.add('modal--hidden');
+    });
+});
+</script>
+{% endblock %}

@@ -13,6 +13,7 @@ class Item(SqlAlchemyBase, SerializerMixin):
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     item_url = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    file_size_bytes = sqlalchemy.Column(sqlalchemy.BigInteger, default=0)
     type_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("types.id"),
                                 nullable=False)
@@ -32,11 +33,7 @@ class Item(SqlAlchemyBase, SerializerMixin):
                                 foreign_keys=[category_id])
     creator = orm.relationship("User", back_populates="items", 
                                foreign_keys=[creator_id])
-    images = orm.relationship("ItemImage",
-                              back_populates="item",
-                              order_by="ItemImage.display_order",
-                              cascade="all, delete-orphan")
-    
+
     def to_dict(self) -> dict:
         return {
             "id": self.id,
@@ -47,6 +44,20 @@ class Item(SqlAlchemyBase, SerializerMixin):
             "can_download": self.can_download,
             "category_id": self.category_id,
             "creator_id": self.creator_id,
-            "images": [img.image_url for img in self.images],
-            "main_image": self.images[0].image_url if self.images else None
+            "file_size": self.get_human_readable_size()
         }
+
+    def get_human_readable_size(self) -> str:
+        """Convert file size in bytes to human-readable format"""
+        size = self.file_size_bytes
+        
+        if not size:
+            return "0 KB"
+        
+        for unit in ["bytes", "KB", "MB", "GB", "TB"]:
+            if size < 1024.0:
+                if unit == "bytes":
+                    return f"{int(size)} {unit}"
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} PB"

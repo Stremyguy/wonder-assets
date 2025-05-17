@@ -16,7 +16,6 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/modal.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/form.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/lightbox.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/file.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/components/model_viewer.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/authentication.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pages/categories.css') }}">
@@ -71,16 +70,18 @@
                             <img class="logo" src="{{ url_for('static', filename='images/wonder_assets_logo.png') }}" alt="Wonder Assets Logo">
                         </a>
                         {% for role in current_user.roles %}
-                            {% if role.id == 4 or role.id == 3 %}
-                                <a class="button button--default button--md" href="/admin_panel/">Admin panel</a>
+                            {% if role.id == 4 %}
+                                <a class="button button--default button--md" href="/admin_panel/">
+                                    <span class="button__icon">
+                                        <i class="bi bi-bar-chart-steps"></i>
+                                    </span>
+                                    Admin panel
+                                </a>
                             {% endif %}
                         {% endfor %}
                     </div>
 
                     <div class="navbar-top__right">
-                        <a href="#" class="navbar-top__element">
-                            <span class="bi bi-search"></span>
-                        </a>
                         {% if current_user.is_authenticated %}
                             <div class="profile__user" onclick="location.href='/profile/{{ current_user.id }}'" style="cursor: pointer">
                                 <div class="profile__picture profile__picture--medium">

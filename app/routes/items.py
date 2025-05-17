@@ -1,13 +1,14 @@
 import os
-from flask import Blueprint, render_template, redirect, flash, abort, request, url_for
+from flask import Blueprint, render_template, redirect, flash, abort, request, url_for, jsonify
 from flask_login import login_required, current_user
 from app.services import get_category_by_id, get_item_by_id, get_all_items, get_all_roles, filter_visible_items
 from app.services import create_item as create_item_service
 from app.services import edit_item as edit_item_service
 from app.services import delete_item as delete_item_service
-from app.services import is_3d_model
+from app.services import favorite_item_actions
 from app.permissions import has_permission, permission_required
 from app.forms import ItemForm
+from app.models import Permission
 from werkzeug.utils import secure_filename
 from flask import current_app, send_from_directory
 
@@ -18,13 +19,23 @@ item_bp = Blueprint("items", __name__)
 def item_page(item_id: int) -> str:
     item = get_item_by_id(item_id)
     
+    if not item:
+        abort(404)
+    
+    if item.is_private:
+        if not current_user.is_authenticated:
+            abort(403)
+        if not (item.creator_id == current_user.id or
+                has_permission(current_user, Permission.VIEW_PRIVATE_ITEM)):
+            abort(403)
+    
     @login_required
     def get_info_about_creator() -> bool:
         is_creator = item.creator_id == current_user.id
-        can_edit_own = has_permission(current_user, "edit_own_item")
-        can_edit_all = has_permission(current_user, "edit_item")
-        can_delete_own = has_permission(current_user, "delete_own_item")
-        can_delete_all = has_permission(current_user, "delete_item")
+        can_edit_own = has_permission(current_user, Permission.EDIT_OWN_ITEM)
+        can_edit_all = has_permission(current_user, Permission.EDIT_ITEM)
+        can_delete_own = has_permission(current_user, Permission.DELETE_OWN_ITEM)
+        can_delete_all = has_permission(current_user, Permission.DELETE_ITEM)
         
         return (is_creator and (can_edit_own and can_delete_own)) or (can_edit_all and can_delete_all)
 
@@ -67,7 +78,7 @@ def create_item(category_id: int) -> str:
     if form.validate_on_submit():
         try:
             item_filename = None
-            
+        
             if form.item_url.data:
                 item_file = form.item_url.data
                 item_filename = secure_filename(item_file.filename)
@@ -80,23 +91,12 @@ def create_item(category_id: int) -> str:
                 os.makedirs(current_app.config["ITEMS_FOLDER"], exist_ok=True)
                 item_file.save(item_path)
 
-            image_filenames = []
-            
-            for image in form.images.data:
-                if image:
-                    filename = secure_filename(image.filename)
-                    image_path = os.path.join(current_app.config["IMAGES_FOLDER"], filename)
-                    os.makedirs(current_app.config["IMAGES_FOLDER"], exist_ok=True)
-                    image.save(image_path)
-                    image_filenames.append(filename)
-
             description = request.form.get("description", "")
             
             create_item_service(
                 title=form.title.data,
                 description=description,
                 item_url=item_filename,
-                images=image_filenames if image_filenames else None,
                 category_id=category_id,
                 creator_id=current_user.id,
                 type_id=form.type.data,
@@ -120,14 +120,13 @@ def edit_item(item_id: int) -> str:
         abort(404)
     
     is_creator = item.creator_id == current_user.id
-    can_edit_own = has_permission(current_user, "edit_own_item")
-    can_edit_all = has_permission(current_user, "edit_item")
+    can_edit_own = has_permission(current_user, Permission.EDIT_OWN_ITEM)
+    can_edit_all = has_permission(current_user, Permission.EDIT_ITEM)
     
     if not (is_creator and can_edit_own) and not can_edit_all:
         abort(403)
     
     form = ItemForm()
-    current_images = [img for img in item.images if img.image_url != "item_logo_default.png"]
     
     if request.method == "GET":
         form.title.data = item.title
@@ -152,7 +151,6 @@ def edit_item(item_id: int) -> str:
                                          title="Wonder assets",
                                          form=form,
                                          item=item,
-                                         current_images=current_images,
                                          is_edit=True)
 
                 os.makedirs(current_app.config["ITEMS_FOLDER"], exist_ok=True)
@@ -165,27 +163,6 @@ def edit_item(item_id: int) -> str:
                 
                 item_filename = new_filename
             
-            image_filenames = request.form.getlist("existing_images")
-            
-            if form.images.data:
-                for image in form.images.data:
-                    if image.filename:
-                        filename = secure_filename(image.filename)
-                        base, ext = os.path.splitext(filename)
-                        counter = 1
-                        
-                        while os.path.exists(os.path.join(current_app.config["IMAGES_FOLDER"], filename)):
-                            filename = f"{base}_{counter}{ext}"
-                            counter += 1
-                        
-                        image_path = os.path.join(current_app.config["IMAGES_FOLDER"], filename)
-                        os.makedirs(current_app.config["IMAGES_FOLDER"], exist_ok=True)
-                        image.save(image_path)
-                        image_filenames.append(filename)
-            
-            if not image_filenames:
-                image_filenames = ["item_logo_default.png"]
-
             description = request.form.get("description", "")
             
             edit_item_service(
@@ -193,7 +170,6 @@ def edit_item(item_id: int) -> str:
                 title=form.title.data,
                 description=description,
                 item_url=item_filename,
-                images=image_filenames,
                 category_id=item.category_id,
                 creator_id=item.creator_id,
                 type_id=form.type.data,
@@ -213,7 +189,6 @@ def edit_item(item_id: int) -> str:
                          title="Wonder assets",
                          form=form,
                          item=item,
-                         current_images=current_images,
                          is_edit=True)
 
 
@@ -227,8 +202,8 @@ def delete_item(item_id: int) -> str:
         abort(404)
     
     is_creator = item.creator_id == current_user.id
-    can_delete_own = has_permission(current_user, "delete_own_item")
-    can_delete_all = has_permission(current_user, "delete_item")
+    can_delete_own = has_permission(current_user, Permission.DELETE_OWN_ITEM)
+    can_delete_all = has_permission(current_user, Permission.DELETE_ITEM)
     
     if not (is_creator and can_delete_own) and not can_delete_all:
         abort(403)
@@ -252,8 +227,3 @@ def download_file(filename: str) -> None:
         path=filename,
         as_attachment=True
     )
-
-
-@item_bp.route("/upload")
-def upload_images() -> str:
-    return "OK"

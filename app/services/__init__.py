@@ -5,7 +5,8 @@ from .user_service import (
     create_user,
     edit_user,
     change_user_roles,
-    check_if_user_exists
+    check_if_user_exists,
+    update_user_avatar,
 )
 
 from .role_service import (
@@ -37,13 +38,10 @@ from .item_service import (
     get_all_items,
     get_item_by_id,
     get_items_by_category_id,
+    get_items_by_creator_id,
     delete_item,
     create_item,
     edit_item,
+    favorite_item_actions,
     filter_visible_items,
-)
-
-from .file_utils import (
-    allowed_file,
-    is_3d_model,
 )

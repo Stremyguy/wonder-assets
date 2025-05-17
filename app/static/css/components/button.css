@@ -71,6 +71,13 @@
     pointer-events: none;
 }
 
+.button__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.25rem;
+}
+
 /* ============================= */
 /* ======= AUTH BUTTONS ======= */
 /* ============================= */

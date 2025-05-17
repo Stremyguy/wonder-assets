@@ -32,7 +32,6 @@ class ItemsResource(Resource):
             title=args["title"],
             description=args["description"],
             item_url=args["item_url"],
-            images=args["images"],
             type_id=args["type_id"],
             category_id=args["category_id"],
             creator_id=args["creator_id"],

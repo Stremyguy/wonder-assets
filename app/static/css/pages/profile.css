@@ -78,10 +78,10 @@
 }
 
 .profile-page__content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
+    width: 100%;
 }
 
 /* User card */
@@ -95,7 +95,7 @@
 .profile__user {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .profile__picture--small { width: 32px; height: 32px; }

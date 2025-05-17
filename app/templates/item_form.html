@@ -74,26 +74,6 @@
                 {% endfor %}
             </div>
             
-            <div class="image-picker">
-                {{ form.images.label(class="image-picker__label") }}
-                
-                <div class="image-picker__container" id="image-container">
-                    {% if is_edit and current_images %}
-                        {% for image in current_images %}
-                            <div class="image-picker__item" data-image-url="{{ image.image_url }}">
-                                <img src="{{ url_for('static', filename='images/items/' + image.image_url) }}" 
-                                     class="image-picker__image">
-                                <div class="image-picker__remove">×</div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                {{ form.images(class="image-picker__input", multiple=True, style="display: none;") }}
-                {% for error in form.images.errors %}
-                    <p class="text--error">{{ error }}</p>
-                {% endfor %}
-            </div>
-            
             <div class="form__section-actions">
                 <button type="button" class="button button--outline button--md form__section-prev">Previous</button>
                 <button type="button" class="button button--outline button--md form__section-next">Next: Settings</button>
@@ -321,12 +301,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (is_3d_model(file.name)) {
                 filePreview.innerHTML = `
                     <p>3D model file detected: ${file.name}</p>
-                    <p class="text--success">This file will be previewable on the item page.</p>
+                    <p class="text--success"><i class="bi bi-check-circle-fill"></i>This file will be previewable on the item page.</p>
                 `;
             } else {
                 filePreview.innerHTML = `
                     <p>File type: ${file.name.split('.').pop().toUpperCase()}</p>
-                    <p class="text--warning">This file type won't have a preview on the item page.</p>
+                    <p class="text--warning"><i class="bi bi-exclamation-triangle-fill"></i>This file type won't have a preview on the item page.</p>
                 `;
             }
         });        
@@ -336,104 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const ext = filename.split('.').pop().toLowerCase();
         return ['gltf', 'glb', 'obj', 'fbx', 'stl', 'dae', 'ply', '3ds'].includes(ext);
     }
-    
-    const imagePicker = document.querySelector('.image-picker');
-    if (!imagePicker) return;
-    
-    const imageInput = imagePicker.querySelector('.image-picker__input');
-    const imageContainer = imagePicker.querySelector('.image-picker__container');
-    const form = imagePicker.closest('form');
-    
-    let images = [];
-    
-    const existingImages = imageContainer.querySelectorAll('.image-picker__item');
-    existingImages.forEach(img => {
-        images.push({
-            url: img.querySelector('img').src,
-            filename: img.dataset.imageUrl,
-            isExisting: true
-        });
-        
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'existing_images';
-        hiddenInput.value = img.dataset.imageUrl;
-        form.appendChild(hiddenInput);
-    });
-    
-    const addButton = document.createElement('div');
-    addButton.className = 'image-picker__add';
-    addButton.innerHTML = `
-        <div class="image-picker__add-icon">+</div>
-        <div class="image-picker__add-text">Add Images</div>
-    `;
-    imageContainer.appendChild(addButton);
-    
-    imageInput.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-            
-        files.forEach(file => {
-            if (!file.type.match('image.*')) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                images.push({
-                    url: e.target.result,
-                    file: file,
-                    isExisting: false
-                });
-                updateImageDisplay();
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-    
-    addButton.addEventListener('click', function() {
-        imageInput.click();
-    });
-    
-    function updateImageDisplay() {
-        document.querySelectorAll('input[name="existing_images"]').forEach(el => el.remove());
-        
-        imageContainer.innerHTML = '';
-        
-        images.forEach((img, index) => {
-            const item = document.createElement('div');
-            item.className = 'image-picker__item';
-            if (img.isExisting) {
-                item.dataset.imageUrl = img.filename;
-                
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'existing_images';
-                hiddenInput.value = img.filename;
-                form.appendChild(hiddenInput);
-            }
-            
-            const imgEl = document.createElement('img');
-            imgEl.className = 'image-picker__image';
-            imgEl.src = img.url;
-            
-            const removeBtn = document.createElement('div');
-            removeBtn.className = 'image-picker__remove';
-            removeBtn.innerHTML = '×';
-            removeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                images.splice(index, 1);
-                updateImageDisplay();
-            });
-            
-            item.appendChild(imgEl);
-            item.appendChild(removeBtn);
-            imageContainer.appendChild(item);
-        });
-        
-        const newAddButton = addButton.cloneNode(true);
-        newAddButton.addEventListener('click', () => imageInput.click());
-        imageContainer.appendChild(newAddButton);
-    }
-
-    updateImageDisplay();
 });
 </script>
 {% endblock %}

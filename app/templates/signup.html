@@ -53,14 +53,6 @@
                         {% endfor %}
                     </div>
                     
-                    <div class="form-input">
-                        {{ form.bio(class="form-input__field", placeholder=" ") }}
-                        {{ form.bio.label(class="form-input__label") }}
-                        {% for error in form.bio.errors %}
-                            <p class="text--error">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    
                     <p class="text--error">{{ message }}</p>
                     {{ form.submit(class="button button--primary button--md") }}
                 </form>

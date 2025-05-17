@@ -92,11 +92,29 @@
     color: #6E6E6E;
 }
 
+.category-page__meta__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-page__meta__item-label {
+    white-space: nowrap;
+}
+
 .category-page__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
+}
+
+.category-page__controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
 }
 
 .category-page__items {

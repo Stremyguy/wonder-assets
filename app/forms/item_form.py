@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField
 from wtforms import StringField, TextAreaField, BooleanField, SubmitField, SelectField, MultipleFileField, ValidationError
 from wtforms.validators import DataRequired
 from app.services import get_all_types
@@ -12,9 +12,6 @@ class ItemForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     description = TextAreaField("Description")
     item_url = FileField("Select Item file")
-    images = MultipleFileField(
-        "Item Images (optional)", 
-        validators=[FileAllowed(["jpg", "png", "jpeg", "gif"], "Images only!")])
     type = SelectField(
         "Type",
         coerce=int,

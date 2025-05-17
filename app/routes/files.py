@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, url_for, request, current_app
 from werkzeug.utils import secure_filename
-from app.services import allowed_file
+from app.utils import allowed_file
 from datetime import datetime
 
 file_bp = Blueprint("files_bp", __name__)

@@ -157,6 +157,16 @@
     border-bottom: 1px solid #F0F0F0;
 }
 
+.item-page__meta__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.item-page__meta__item-label {
+    white-space: nowrap;
+}
+
 .item-page__actions {
     display: flex;
     align-items: center;

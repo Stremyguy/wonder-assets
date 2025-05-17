@@ -52,6 +52,7 @@ import {
 	SpecialCharactersText
 } from '@ckeditor/ckeditor5-special-characters';
 import { Style } from '@ckeditor/ckeditor5-style';
+import { SourceEditing } from '@ckeditor/ckeditor5-source-editing'
 import {
 	Table,
 	TableCaption,
@@ -104,6 +105,7 @@ class Editor extends ClassicEditor {
 		PasteFromOffice,
 		RemoveFormat,
 		SimpleUploadAdapter,
+		SourceEditing,
 		SpecialCharacters,
 		SpecialCharactersArrows,
 		SpecialCharactersCurrency,
@@ -126,7 +128,10 @@ class Editor extends ClassicEditor {
 		Underline
 	];
 
-	public static override defaultConfig: EditorConfig = {
+	public static override defaultConfig: EditorConfig & {
+		image?: { toolbar?: string[] };
+		table?: { contentToolbar?: string[] }
+		
 		toolbar: {
 			items: [
 				'heading',
@@ -165,7 +170,8 @@ class Editor extends ClassicEditor {
 				'|',
 				'undo',
 				'redo',
-				'removeFormat'
+				'removeFormat',
+				'sourceEditing'
 			]
 		},
 		language: 'en',

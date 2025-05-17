@@ -5,13 +5,23 @@
             <h1 class="category-page__title">{{ category.title }}</h1>
             
             {% if category.full_description %}
-                <p class="category-page__description">{{ category.full_description }}</p>
+                <p class="category-page__description">{{ category.full_description | safe }}</p>
             {% endif %}
 
             {% if can_change_data %}
                 <div class="category-page__meta">
-                    <div><strong>Creator:</strong> {{ category.creator.username }}</div>
-                    <div><strong>Visible To Roles:</strong> {{ category.visible_to_roles | map(attribute='name') | join(', ') | title }}</div>
+                    <div class="category-page__meta__item">
+                        <strong class="category-page__meta__item-label">Creator:</strong>
+                        <div class="category-page__user profile__user" onclick="location.href='/profile/{{ category.creator.id }}'" style="cursor: pointer">
+                            <div class="profile__picture profile__picture--medium">
+                                <img src="{{ url_for('static', filename=category.creator.get_avatar_url()) }}">
+                            </div>
+                            <span class="profile-page__username--table">{{ category.creator.username }}</span>
+                        </div>
+                    </div>
+                    <div class="category-page__meta__item">
+                        <strong>Visible To Roles:</strong> {{ category.visible_to_roles | map(attribute='name') | join(', ') | title }}
+                    </div>
                 </div>
 
                 <div class="category-page__actions">
@@ -20,8 +30,49 @@
                     
                     <a class="icon icon--medium bi bi-trash" id="deleteBtn"></a>
                 </div>
-                <a class="button button--primary button--md" href="/categories/{{ category.id }}/items">+ Create</a>
+                
+                <a class="button button--primary button--md" href="/categories/{{ category.id }}/items">
+                    <span class="button__icon">
+                        <i class="bi bi-plus"></i>
+                    </span>
+                    Create
+                </a>
             {% endif %}
+        </div>
+
+        <div class="category-page__controls">
+            <form method="GET" action="{{ request.path }}" class="search search--category">
+                <div class="search__group">
+                    <input type="text" 
+                           name="q" 
+                           placeholder="Search items..." 
+                           value="{{ request.args.get('q', '') }}"
+                           class="search__input">
+                    <button type="submit" class="search__button">
+                        <i class="search__icon bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="filter">
+                <button class="filter__button button button--default" type="button">
+                    <i class="filter__icon bi bi-filter"></i>
+                    <span class="filter__text">
+                        {% if request.args.get('sort') == 'title_asc' %}A-Z
+                        {% elif request.args.get('sort') == 'title_desc' %}Z-A
+                        {% elif request.args.get('sort') == 'date_asc' %}Oldest First
+                        {% else %}Newest First
+                        {% endif %}
+                    </span>
+                </button>
+                
+                <div class="filter__dropdown">
+                    <a href="{{ request.path }}?sort=title_asc{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="filter__option">A-Z</a>
+                    <a href="{{ request.path }}?sort=title_desc{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="filter__option">Z-A</a>
+                    <a href="{{ request.path }}?sort=date_desc{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="filter__option">Newest First</a>
+                    <a href="{{ request.path }}?sort=date_asc{% if request.args.get('q') %}&q={{ request.args.get('q') }}{% endif %}" class="filter__option">Oldest First</a>
+                </div>
+            </div>
         </div>
         
         <div class="category-page__items">
@@ -40,10 +91,7 @@
                             </div>
                         {% else %}
                             <div class="item-card__image-container">
-                                <img class="item-card__image" 
-                                    src="{{ url_for('static', filename='images/items/' + item.images[0].image_url) if item.images and item.images[0].image_url else url_for('static', filename='images/item_logo_default.png') }}"
-                                    alt="{{ item.title }} preview"
-                                    onerror="this.src='{{ url_for('static', filename='images/item_logo_default.png') }}'">
+                                <span class="icon icon--static icon--large bi-box"></span>
                             </div>
                         {% endif %}
                         
@@ -51,12 +99,11 @@
                             <h3 class="item-card__title">{{ item.title }}</h3>
                             <div class="item-card__meta">
                                 <span>{{ item.type.name }}</span>
-                                <span>TEST MB</span>
+                                {% if item.item_url %}
+                                <span>{{ item.get_human_readable_size() }}</span>
+                                {% endif %}
                             </div>
                         </div>
-                        {% if item.item_url %}
-                            <div class="item-card__badge">TEST</div>
-                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
@@ -96,6 +143,21 @@
         modalOverlay.addEventListener('click', () => {
             deleteModal.classList.add('modal--hidden');
             modalOverlay.classList.add('modal--hidden');
+        });
+
+        document.querySelector('.filter__button').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdown = this.nextElementSibling;
+            dropdown.classList.toggle('filter__dropdown--show');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.filter')) {
+                document.querySelectorAll('.filter__dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('filter__dropdown--show');
+                });
+            }
         });
     </script>
 {% endblock %}

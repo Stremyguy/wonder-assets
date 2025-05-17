@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, redirect
+from flask import Blueprint, render_template, redirect
 from flask_login import login_user, logout_user, login_required
 from app.forms import LoginForm, SignUpForm
 from app.services import create_user, check_if_user_exists

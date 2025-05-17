@@ -2,7 +2,12 @@
 {% block content %}
     <h1>Categories</h1>
     {% if can_create %}
-        <a class="button button--primary button--md" href="/categories/create">+ Create</a>
+        <a class="button button--primary button--md" href="/categories/create">
+            <span class="button__icon">
+                <i class="bi bi-plus"></i>
+            </span>
+            Create
+        </a>
     {% endif %}
     <div class="categories">
         {% for category in categories %}
@@ -12,7 +17,7 @@
                     
                 <div class="category-card__badge">
                     {% if category.is_testing %}
-                        <span class="icon icon--static bi-lock-fill"></span>
+                        <span class="icon icon--static bi-bug-fill"></span>
                     {% endif %}
                     {% if category.is_private %}
                         <span class="icon icon--static bi-lock-fill"></span>

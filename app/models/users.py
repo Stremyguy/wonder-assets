@@ -15,17 +15,17 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     username = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=False)
     password_hash = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    avatar_url = sqlalchemy.Column(sqlalchemy.String, default="profile_pics/default.png")
+    avatar_url = sqlalchemy.Column(sqlalchemy.String)
     bio = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     updated_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     categories = orm.relationship("Category", back_populates="creator")
     items = orm.relationship("Item", back_populates="creator")
-
+    
     roles = orm.relationship(
         "Role",
         secondary="user_roles",
-        backref="users"
+        backref="users",
     )
 
     def set_password(self, password: str) -> None:
@@ -34,6 +34,12 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     def check_password(self, password: str) -> check_password_hash:
         return check_password_hash(self.password_hash, password)
 
+    def get_avatar_url(self) -> str:
+        """Returns relative URL for the avatar"""
+        if not self.avatar_url:
+            return "images/profile_pics/default.png"
+        return self.avatar_url
+    
     def to_dict(self) -> dict:
         return {
             "id": self.id,
@@ -42,7 +48,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
             "password": self.password_hash,
             "avatar_url": self.avatar_url,
             "bio": self.bio,
-            "roles": [role.name for role in self.roles]            
+            "roles": [role.name for role in self.roles],
         }
     
     def __repr__(self) -> str:

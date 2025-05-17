@@ -4,17 +4,36 @@
     <div class="item-page__layout">
         <div class="item-page__content">
             <div class="item-page__header">
-                <a href="/categories/{{ item.category_id }}" class="button button--default button--md">Back</a>
+                <a href="/categories/{{ item.category_id }}" class="button button--default button--md">
+                    <span class="button__icon">
+                        <i class="bi bi-chevron-left"></i>
+                    </span>
+                    Back
+                </a>
                 <h1 class="item-page__title">{{ item.title }}</h1>
 
                 {% if item.show_meta %}
                 <div class="item-page__meta">
-                    <div><strong>Type:</strong> {{ item.type.name }}</div>
-                    <div><strong>Uploaded:</strong> {{ item.created_date.strftime('%Y-%m-%d') }}</div>
-                    <div><strong>Creator:</strong> {{ item.creator.username }}</div>
+                    <div class="item-page__meta__item">
+                        <strong>Type:</strong> {{ item.type.name }}
+                    </div>
                     {% if item.item_url %}
-                    <div><strong>Filename:</strong> {{ item.item_url }}</div>
+                    <div class="item-page__meta__item">
+                        <strong>File size:</strong> {{ item.get_human_readable_size() }}
+                    </div>
                     {% endif %}
+                    <div class="item-page__meta__item">
+                        <strong>Uploaded:</strong> {{ item.created_date.strftime('%B %d, %Y') }}
+                    </div>
+                    <div class="item-page__meta__item">
+                        <strong class="item-page__meta__item-label">Creator:</strong>
+                        <div class="item-page__user profile__user" onclick="location.href='/profile/{{ item.creator.id }}'" style="cursor: pointer">
+                            <div class="profile__picture profile__picture--medium">
+                                <img src="{{ url_for('static', filename=item.creator.get_avatar_url()) }}">
+                            </div>
+                            <span class="profile-page__username--table">{{ item.creator.username }}</span>
+                        </div>
+                    </div>
                 </div>
                 {% endif %}
                 
@@ -69,40 +88,6 @@
                 </script>
                 {% endif %}
 
-                {% if item.images|length > 1 %}
-                <div class="item-page__slideshow">
-                    {% for image in item.images %}
-                    <div class="item-page__slide {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
-                        <img src="{{ url_for('static', filename='images/items/' + image.image_url) }}"
-                            alt="{{ item.title }} preview {{ loop.index }}"
-                            class="item-page__slideshow-image"
-                            data-lightbox="{{ loop.index0 }}">
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="lightbox">
-                    <div class="lightbox__content">
-                        <button class="lightbox__close">&times;</button>
-                        <button class="lightbox__prev">&lsaquo;</button>
-                        <button class="lightbox__next">&rsaquo;</button>
-                        <div class="lightbox__image-container">
-                            <img class="lightbox__image" src="" alt="">
-                        </div>
-                    </div>
-                </div>
-
-                {% if item.images|length > 1 %}
-                <div class="item-page__dots-nav">
-                    {% for image in item.images %}
-                    <button class="item-page__dot {% if loop.first %}active{% endif %}"
-                            data-index="{{ loop.index0 }}"
-                            aria-label="Go to slide {{ loop.index }}"></button>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
                 {% if item.description %}
                 <div class="item-page__description ckeditor-content">
                     {{ item.description | safe }}
@@ -114,21 +99,60 @@
         {% if item.can_download and item.item_url %}    
         <div class="item-page__sidebar">
             <div class="sidebar-block">
-                <a href="{{ url_for('items.download_file', filename=item.item_url) }}" 
-                    class="button button--primary button--md">
+                <a href="{{ url_for('items.download_file', filename=item.item_url) }}" class="button button--primary button--md">
+                    <span class="button__icon">
+                        <i class="bi bi-download"></i>
+                    </span>
                     Download
                 </a>
-                <a class="button button--md">
-                    Add to favorite
+                <a class="button button--default button--md" id="shareBtn">
+                    <span class="button__icon">
+                        <i class="bi bi-share-fill"></i>
+                    </span>
+                    Share
                 </a>
             </div>
         </div>
         {% endif %}
+        
+        <div class="modal modal--hidden" id="shareModal">
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h3 class="modal__title">Share this item</h3>
+                </div>
+                <div class="modal__body">
+                    <div class="form-input">
+                        <input 
+                            type="text" 
+                            class="search__input" 
+                            id="shareLink" 
+                            value="{{ request.url }}" 
+                            readonly
+                        >
+                    </div>
+                </div>
+                <div class="modal__actions">
+                    <button class="button button--primary button--sm" id="copyLinkBtn">
+                        <span class="button__icon">
+                            <i class="bi bi-clipboard"></i>
+                        </span>
+                        Copy Link
+                    </button>
+                    <button class="button button--default button--sm" id="closeShareModal">Close</button>
+                </div>
+            </div>
+        </div>
+
         <div class="modal modal--hidden" id="deleteModal">
             <div class="modal__content">
-                <p class="modal__text">Are you sure you want to delete the item?</p>
+                <div class="modal__header">
+                    <h3 class="modal__title">Confirm deletion</h3>
+                </div>
+                <div class="modal__body">
+                    <p class="modal__text">Are you sure you want to delete this item?</p>
+                </div>
                 <div class="modal__actions">
-                    <a href="/items/delete/{{ item.id }}" class="button button--error button--sm">Yes</a>
+                    <a href="/items/delete/{{ item.id }}" class="button button--error button--sm">Yes, delete</a>
                     <button class="button button--default button--sm" id="cancelDelete">Cancel</button>
                 </div>
             </div>
@@ -137,210 +161,83 @@
         <div class="modal__overlay modal--hidden" id="modalOverlay"></div>
     </div>
 </div>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const slideshow = document.querySelector('.item-page__slideshow');
-    const slides = document.querySelectorAll('.item-page__slide');
-    const thumbnails = document.querySelectorAll('.item-page__thumbnail');
-    const dots = document.querySelectorAll('.item-page__dot');
-    let slideshowInterval;
-    let currentIndex = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteBtn = document.getElementById('deleteBtn');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDelete');
+        
+        const shareBtn = document.getElementById('shareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const closeShareModalBtn = document.getElementById('closeShareModal');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const shareLinkInput = document.getElementById('shareLink');
+        const modalCloseButtons = document.querySelectorAll('.modal__close');
+        
+        const modalOverlay = document.getElementById('modalOverlay');
 
-    // Only initialize if there are slides
-    if (slides.length > 1) {
-        // Click handlers for thumbnails and dots
-        const navItems = [...thumbnails, ...dots];
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const index = parseInt(this.dataset.index);
-                goToSlide(index);
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('modal--hidden');
+                modalOverlay.classList.remove('modal--hidden');
+                document.body.style.overflow = 'hidden';
             });
+        }
+
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', closeModals);
+        }
+
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                shareModal.classList.remove('modal--hidden');
+                modalOverlay.classList.remove('modal--hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        if (closeShareModalBtn) {
+            closeShareModalBtn.addEventListener('click', closeModals);
+        }
+
+        if (copyLinkBtn) {
+            copyLinkBtn.addEventListener('click', () => {
+                shareLinkInput.select();
+                document.execCommand('copy');
+                
+                const originalText = copyLinkBtn.innerHTML;
+                copyLinkBtn.innerHTML = `
+                    <span class="button__icon">
+                        <i class="bi bi-check"></i>
+                    </span>
+                    Copied!
+                `;
+                
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        modalOverlay.addEventListener('click', closeModals);
+
+        modalCloseButtons.forEach(button => {
+            button.addEventListener('click', closeModals);
         });
 
-        // Go to specific slide
-        function goToSlide(index) {
-            // Update slides
-            slides.forEach(slide => slide.classList.remove('active'));
-            slides[index].classList.add('active');
-            
-            // Update nav items
-            navItems.forEach(item => item.classList.remove('active'));
-            thumbnails[index]?.classList.add('active');
-            dots[index]?.classList.add('active');
-            
-            currentIndex = index;
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('modal--hidden');
+            });
+            modalOverlay.classList.add('modal--hidden');
+            document.body.style.overflow = '';
         }
 
-        // Auto-rotate slideshow
-        function startSlideshow() {
-            slideshowInterval = setInterval(() => {
-                currentIndex = (currentIndex + 1) % slides.length;
-                goToSlide(currentIndex);
-            }, 5000);
-        }
-
-        // Pause on hover
-        slideshow.addEventListener('mouseenter', () => clearInterval(slideshowInterval));
-        slideshow.addEventListener('mouseleave', startSlideshow);
-
-        // Initialize
-        startSlideshow();
-    }
-
-
-    
-    // Lightbox functionality
-    const lightbox = document.querySelector('.lightbox');
-    const lightboxImg = document.querySelector('.lightbox__image');
-    const lightboxClose = document.querySelector('.lightbox__close');
-    const lightboxPrev = document.querySelector('.lightbox__prev');
-    const lightboxNext = document.querySelector('.lightbox__next');
-    const lightboxImageContainer = document.querySelector('.lightbox__image-container');
-    
-    let currentLightboxIndex = 0;
-    let isDragging = false;
-    let startPos = { x: 0, y: 0 };
-    let translate = { x: 0, y: 0 };
-    let scale = 1;
-    
-    // Get all images that can open the lightbox
-    const images = document.querySelectorAll('.item-page__slideshow-image');
-    
-    // Open lightbox when clicking an image
-    images.forEach(img => {
-        img.addEventListener('click', function(e) {
-            // Prevent the click from bubbling up if there are other click handlers
-            e.stopPropagation();
-            
-            currentLightboxIndex = parseInt(this.dataset.lightbox);
-            openLightbox(currentLightboxIndex);
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModals();
+            }
         });
-    });
-    
-    // Open lightbox with specific image
-    function openLightbox(index) {
-        const activeSlide = document.querySelector(`.item-page__slide[data-index="${index}"]`);
-        const imgSrc = activeSlide.querySelector('img').src;
-        const imgAlt = activeSlide.querySelector('img').alt;
-        
-        lightboxImg.src = imgSrc;
-        lightboxImg.alt = imgAlt;
-        lightbox.classList.add('show');
-        document.body.classList.add('lightbox-open');
-        
-        // Reset zoom and pan
-        scale = 1;
-        translate = { x: 0, y: 0 };
-        updateImageTransform();
-    }
-    
-    // Close lightbox
-    function closeLightbox() {
-        lightbox.classList.remove('show');
-        document.body.classList.remove('lightbox-open');
-        
-        // Reset zoom and pan
-        scale = 1;
-        translate = { x: 0, y: 0 };
-        updateImageTransform();
-    }
-    
-    // Navigate to previous image
-    function prevImage(e) {
-        e.stopPropagation();
-        currentLightboxIndex = (currentLightboxIndex - 1 + images.length) % images.length;
-        openLightbox(currentLightboxIndex);
-    }
-    
-    // Navigate to next image
-    function nextImage(e) {
-        e.stopPropagation();
-        currentLightboxIndex = (currentLightboxIndex + 1) % images.length;
-        openLightbox(currentLightboxIndex);
-    }
-    
-    // Update image transform for zoom/pan
-    function updateImageTransform() {
-        lightboxImg.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${scale})`;
-    }
-    
-    // Event listeners
-    lightboxClose.addEventListener('click', closeLightbox);
-    lightboxPrev.addEventListener('click', prevImage);
-    lightboxNext.addEventListener('click', nextImage);
-    
-    // Close lightbox when clicking on the background
-    lightbox.addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeLightbox();
-        }
-    });
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (!lightbox.classList.contains('show')) return;
-        
-        switch (e.key) {
-            case 'Escape':
-                closeLightbox();
-                break;
-            case 'ArrowLeft':
-                prevImage(e);
-                break;
-            case 'ArrowRight':
-                nextImage(e);
-                break;
-        }
-    });
-    
-    // Zoom with mouse wheel
-    lightboxImageContainer.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-        zoomImage(zoomFactor, e.clientX, e.clientY);
-    });
-    
-    // Zoom in/out
-    function zoomImage(zoomFactor, clientX, clientY) {
-        const rect = lightboxImageContainer.getBoundingClientRect();
-        const containerCenterX = rect.width / 2;
-        const containerCenterY = rect.height / 2;
-        
-        // Calculate mouse position relative to container center
-        const mouseX = clientX ? clientX - rect.left - containerCenterX : 0;
-        const mouseY = clientY ? clientY - rect.top - containerCenterY : 0;
-        
-        const prevScale = scale;
-        scale = Math.max(1, scale * zoomFactor);
-        
-        // Adjust translation to zoom toward mouse position
-        translate.x = (translate.x - mouseX) * (scale / prevScale) + mouseX;
-        translate.y = (translate.y - mouseY) * (scale / prevScale) + mouseY;
-        
-        updateImageTransform();
-    }
-});
-</script>
-<script>
-    const deleteBtn = document.getElementById('deleteBtn');
-    const deleteModal = document.getElementById('deleteModal');
-    const cancelBtn = document.getElementById('cancelDelete');
-    const modalOverlay = document.getElementById('modalOverlay');
-
-    deleteBtn.addEventListener('click', () => {
-        deleteModal.classList.remove('modal--hidden');
-        modalOverlay.classList.remove('modal--hidden');
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        deleteModal.classList.add('modal--hidden');
-        modalOverlay.classList.add('modal--hidden');
-    });
-
-    modalOverlay.addEventListener('click', () => {
-        deleteModal.classList.add('modal--hidden');
-        modalOverlay.classList.add('modal--hidden');
     });
 </script>
 {% endblock %}
