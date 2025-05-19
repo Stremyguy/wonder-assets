@@ -97,7 +97,7 @@ def change_user_roles(user_id: int, role_ids: List[str]) -> Optional[User]:
     session = db_session.create_session()
     
     user = session.get(User, user_id)
-        
+    
     if not user:
         return None
         

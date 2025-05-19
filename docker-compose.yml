@@ -1,9 +1,23 @@
-version: '3.9'
-
 services:
+  app:
+    build: .
+    container_name: wonder_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLASK_APP: main.py
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/wonder_assets
+    ports:
+      - "5000:5000"
+    networks:
+      - db_network
+
   db:
     image: postgres:15
-    container_name: wonder_assets
+    container_name: wonder_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
