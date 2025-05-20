@@ -1,0 +1,14 @@
+# render.yaml
+services:
+  - type: web
+    name: wonder-assets
+    runtime: docker
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wonder-assets-db
+          property: connectionString
+      - key: FLASK_ENV
+        value: production
+    healthCheckPath: /health
